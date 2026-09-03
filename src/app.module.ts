@@ -24,7 +24,7 @@ import { MessagesModule } from './messages/messages.module';
       isGlobal: true,
     }),
 
-    TypeOrmModule.forRootAsync({
+    /* TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
 
       inject: [ConfigService],
@@ -40,6 +40,18 @@ import { MessagesModule } from './messages/messages.module';
 
         autoLoadEntities: true,
 
+        synchronize: true,
+      }),
+      }),*/
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+
+      inject: [ConfigService],
+
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DB_URL'),
+        autoLoadEntities: true,
         synchronize: true,
       }),
     }),
