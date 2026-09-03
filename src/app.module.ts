@@ -48,12 +48,16 @@ import { MessagesModule } from './messages/messages.module';
 
       inject: [ConfigService],
 
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DB_URL'),
-        autoLoadEntities: true,
-        synchronize: true,
-      }),
+      useFactory: (configService: ConfigService) => {
+        console.log('DB_URL =', configService.get<string>('DB_URL'));
+
+        return {
+          type: 'postgres',
+          url: configService.get<string>('DB_URL'),
+          autoLoadEntities: true,
+          synchronize: true,
+        };
+      },
     }),
 
     UsersModule,
