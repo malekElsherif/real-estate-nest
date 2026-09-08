@@ -23,7 +23,22 @@ type AuthenticatedSocket = Socket & {
 
 @WebSocketGateway({
   cors: {
-    origin: "http://localhost:5173",
+    // السماح للرابط المرفوع على Railway بالإضافة إلى اللوكال هويست
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:3001',
+        'https://real-estate-react-production.up.railway.app',
+        process.env.CLIENT_URL, // خيار ديناميكي من متغيرات البيئة
+      ].filter(Boolean);
+
+      // السماح لطلبات الأدوات مثل Postman أو إذا كان النطاق مسموحاً به
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true); // يمكنك تغييره لـ callback(new Error('Not allowed by CORS')) عند الإنتاج الصارم
+      }
+    },
     credentials: true,
   },
 })
@@ -54,9 +69,9 @@ export class ChatGateway
       // Get JWT token
       const token = this.extractToken(client);
 
-      // Verify JWT
+      // Verify JWT (مع قراءة Secret من البيئة أو استخدام الافتراضي)
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'my-secret-key',
+        secret: process.env.JWT_SECRET || 'my-secret-key',
       });
 
       const userId = Number(payload.sub);
@@ -83,7 +98,10 @@ export class ChatGateway
         socketId: client.id,
       });
     } catch (error) {
-      console.log('socket authentication failed');
+      console.log(
+        'socket authentication failed:',
+        error instanceof Error ? error.message : error,
+      );
 
       client.emit('authError', {
         message:
@@ -109,8 +127,7 @@ export class ChatGateway
   }
 
   // =========================
-  // OLD EVENT
-  // message
+  // OLD EVENT: message
   // =========================
   @SubscribeMessage('message')
   async handleMessage(
@@ -121,35 +138,27 @@ export class ChatGateway
     data: string | SendMessageDto | { data?: SendMessageDto },
   ) {
     try {
-      // Check if this is a chat message
       const messageDto = this.tryNormalizeMessageBody(data);
 
-      // If not a chat message,
-      // keep the old behavior
       if (!messageDto) {
         this.server.emit('message', data);
-
         return data;
       }
 
-      // Check authentication
       if (!client.user) {
         throw new Error('Socket is not authenticated');
       }
 
-      // Normalize receiverId
       const payload = {
         ...messageDto,
         receiverId: Number(messageDto.receiverId),
       };
 
-      // Save message in database
       const message = await this.messagesService.sendMessage(
         client.user.userId,
         payload,
       );
 
-      // Get receiver socket
       const receiverSocketId = this.connectedUsers.get(payload.receiverId);
 
       console.log('message event saved:', {
@@ -160,19 +169,15 @@ export class ChatGateway
         connectedUsers: Array.from(this.connectedUsers.entries()),
       });
 
-      // Send message to receiver
       if (receiverSocketId) {
         this.server.to(receiverSocketId).emit('newMessage', message);
       } else {
-        // Receiver is offline
         client.emit('receiverOffline', {
           receiverId: payload.receiverId,
         });
       }
 
-      // Confirm to sender
       client.emit('messageSent', message);
-
       return message;
     } catch (error) {
       client.emit('errorMessage', {
@@ -183,8 +188,7 @@ export class ChatGateway
   }
 
   // =========================
-  // NEW EVENT
-  // sendMessage
+  // NEW EVENT: sendMessage
   // =========================
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
@@ -195,27 +199,22 @@ export class ChatGateway
     body: SendMessageDto | string | { data?: SendMessageDto },
   ) {
     try {
-      // Check authentication
       if (!client.user) {
         throw new Error('Socket is not authenticated');
       }
 
-      // Normalize body
       const sendMessageDto = this.normalizeMessageBody(body);
 
-      // Convert receiverId to number
       const payload = {
         ...sendMessageDto,
         receiverId: Number(sendMessageDto.receiverId),
       };
 
-      // Save message in database
       const message = await this.messagesService.sendMessage(
         client.user.userId,
         payload,
       );
 
-      // Get receiver socket
       const receiverSocketId = this.connectedUsers.get(payload.receiverId);
 
       console.log('sendMessage event saved:', {
@@ -226,23 +225,15 @@ export class ChatGateway
         connectedUsers: Array.from(this.connectedUsers.entries()),
       });
 
-      // =========================
-      // SEND TO RECEIVER
-      // =========================
       if (receiverSocketId) {
         this.server.to(receiverSocketId).emit('newMessage', message);
       } else {
-        // Receiver is offline
         client.emit('receiverOffline', {
           receiverId: payload.receiverId,
         });
       }
 
-      // =========================
-      // CONFIRM TO SENDER
-      // =========================
       client.emit('messageSent', message);
-
       return message;
     } catch (error) {
       client.emit('errorMessage', {
@@ -258,21 +249,18 @@ export class ChatGateway
   private extractToken(client: Socket) {
     // 1. Socket.IO auth
     const authToken = client.handshake.auth?.token;
-
     if (authToken) {
       return authToken;
     }
 
     // 2. Query parameter
     const queryToken = client.handshake.query?.token;
-
     if (typeof queryToken === 'string') {
       return queryToken;
     }
 
     // 3. Authorization header
     const authorization = client.handshake.headers.authorization;
-
     if (authorization && authorization.startsWith('Bearer ')) {
       return authorization.split(' ')[1];
     }
@@ -286,18 +274,14 @@ export class ChatGateway
   private normalizeMessageBody(
     body: SendMessageDto | string | { data?: SendMessageDto },
   ): SendMessageDto {
-    // If body is string
     if (typeof body === 'string') {
       return JSON.parse(body) as SendMessageDto;
     }
 
-    // If body is:
-    // { data: {...} }
     if ('data' in body && body.data) {
       return body.data;
     }
 
-    // Normal object
     return body as SendMessageDto;
   }
 
