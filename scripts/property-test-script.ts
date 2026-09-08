@@ -1,12 +1,13 @@
-import { DataSource } from 'typeorm';
+import { NestFactory } from '@nestjs/core';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 
+// قم باستيراد AppModule الخاص بك هنا
+import { AppModule } from '../src/app.module';
 import { User } from '../src/users/entities/user.entity';
 import { Property } from '../src/properties/entities/property.entity';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
 
 interface PropertyInput {
   title: string;
@@ -18,29 +19,29 @@ interface PropertyInput {
   bedrooms?: number;
   bathrooms?: number;
   type?: string;
-  images?: unknown;
+  images?: string[];
   [key: string]: unknown;
 }
 
-const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  username: process.env.DB_USERNAME || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'your_db_name',
-  entities: [path.join(__dirname, '../src/**/*.entity{.ts,.js}')],
-  synchronize: false,
-});
-
 async function runSeed() {
+  let appCtx;
   try {
-    console.log('⏳ جاري الاتصال بقاعدة البيانات...');
-    await AppDataSource.initialize();
-    console.log('✅ تم الاتصال بنجاح.');
+    console.log('⏳ جاري تحميل تطبيق NestJS واستخدام اتصال قاعدة البيانات...');
 
-    const userRepository = AppDataSource.getRepository(User);
-    const propertyRepository = AppDataSource.getRepository(Property);
+    // إنشاء سياق التطبيق بدون تشغيل سيرفر HTTP
+    appCtx = await NestFactory.createApplicationContext(AppModule, {
+      logger: ['error', 'warn'], // إخفاء لوجات التشغيل العادية
+    });
+
+    const dataSource = appCtx.get(DataSource);
+    const userRepository: Repository<User> = appCtx.get(
+      getRepositoryToken(User),
+    );
+    const propertyRepository: Repository<Property> = appCtx.get(
+      getRepositoryToken(Property),
+    );
+
+    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح عبر AppModule.');
 
     // 1. جلب المستخدمين من نوع AGENT فقط
     const agents = await userRepository.find({
@@ -49,28 +50,29 @@ async function runSeed() {
     });
 
     if (agents.length === 0) {
-      console.error('❌ لا يوجد مستخدمين من نوع AGENT في قاعدة البيانات لربط العقارات بهم.');
+      console.error(
+        '❌ لا يوجد مستخدمين من نوع AGENT في قاعدة البيانات لربط العقارات بهم.',
+      );
       process.exit(1);
     }
 
     // 2. قراءة ملف الـ JSON
     const jsonPath = path.join(__dirname, '../scripts/data.json');
     const rawData = fs.readFileSync(jsonPath, 'utf8');
+    const propertiesData = JSON.parse(rawData) as PropertyInput[];
 
-    const parsedData: unknown = JSON.parse(rawData);
-    const propertiesData = parsedData as PropertyInput[];
-
-    // 3. تجهيز العقارات وإسناد قيم افتراضية للحقول غير القابلة للـ NULL
+    // 3. تجهيز العقارات
     const properties = propertiesData.map((propertyData) => {
       const randomIndex = Math.floor(Math.random() * agents.length);
       const randomAgent = agents[randomIndex];
 
-      const { images, ...restPropertyData } = propertyData;
-
       return propertyRepository.create({
-        ...restPropertyData,
+        ...propertyData,
         title: propertyData.title || 'عقار بدون عنوان',
-        description: propertyData.description || propertyData.title || 'لا يوجد وصف متاح حالياً',
+        description:
+          propertyData.description ||
+          propertyData.title ||
+          'لا يوجد وصف متاح حالياً',
         price: Number(propertyData.price) || 0,
         city: propertyData.city || 'القاهرة',
         address: propertyData.address || 'العنوان غير محدد',
@@ -89,8 +91,8 @@ async function runSeed() {
   } catch (error) {
     console.error('❌ حدث خطأ أثناء تنفيذ السكريبت:', error);
   } finally {
-    if (AppDataSource.isInitialized) {
-      await AppDataSource.destroy();
+    if (appCtx) {
+      await appCtx.close();
     }
     process.exit(0);
   }
