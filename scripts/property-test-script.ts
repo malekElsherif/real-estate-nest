@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// قم باستيراد AppModule الخاص بك هنا
 import { AppModule } from '../src/app.module';
 import { User } from '../src/users/entities/user.entity';
 import { Property } from '../src/properties/entities/property.entity';
@@ -19,7 +18,6 @@ interface PropertyInput {
   bedrooms?: number;
   bathrooms?: number;
   type?: string;
-  images?: string[];
   [key: string]: unknown;
 }
 
@@ -30,10 +28,9 @@ async function runSeed() {
 
     // إنشاء سياق التطبيق بدون تشغيل سيرفر HTTP
     appCtx = await NestFactory.createApplicationContext(AppModule, {
-      logger: ['error', 'warn'], // إخفاء لوجات التشغيل العادية
+      logger: ['error', 'warn'],
     });
 
-    const dataSource = appCtx.get(DataSource);
     const userRepository: Repository<User> = appCtx.get(
       getRepositoryToken(User),
     );
@@ -61,13 +58,16 @@ async function runSeed() {
     const rawData = fs.readFileSync(jsonPath, 'utf8');
     const propertiesData = JSON.parse(rawData) as PropertyInput[];
 
-    // 3. تجهيز العقارات
+    // 3. تجهيز العقارات واستبعاد الصور تماماً
     const properties = propertiesData.map((propertyData) => {
       const randomIndex = Math.floor(Math.random() * agents.length);
       const randomAgent = agents[randomIndex];
 
+      // استبعاد الصور من البيانات إن وجدت في الـ JSON
+      const { images, ...restPropertyData } = propertyData;
+
       return propertyRepository.create({
-        ...propertyData,
+        ...restPropertyData,
         title: propertyData.title || 'عقار بدون عنوان',
         description:
           propertyData.description ||
