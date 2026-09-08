@@ -46,6 +46,9 @@ export class PropertiesService {
       where: {
         id: id,
       },
+      relations: {
+        owner: true,
+      },
     });
 
     if (!property) {
@@ -58,18 +61,32 @@ export class PropertiesService {
     filter: FilterPropertyDto,
     page: PaginationDto,
   ) {
-    const { city, minPrice, maxPrice } = filter;
+    const { city, type, status, minPrice, maxPrice } = filter;
+
     const { page: pageNo, limit } = page;
+
     const query = this.propertyRepository.createQueryBuilder('property');
+
     if (city) {
       query.andWhere('property.city = :city', { city });
     }
-    if (minPrice) {
+
+    if (type) {
+      query.andWhere('property.type = :type', { type });
+    }
+
+    if (status) {
+      query.andWhere('property.status = :status', { status });
+    }
+
+    if (minPrice !== undefined) {
       query.andWhere('property.price >= :minPrice', { minPrice });
     }
-    if (maxPrice) {
+
+    if (maxPrice !== undefined) {
       query.andWhere('property.price <= :maxPrice', { maxPrice });
     }
+
     const skip = (pageNo - 1) * limit;
 
     const [data, total] = await query.skip(skip).take(limit).getManyAndCount();
@@ -82,6 +99,7 @@ export class PropertiesService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
   async createProperty(property: CreatePropertyDto, user: any) {
     const currentUser = user;
     const newProperty = this.propertyRepository.create({

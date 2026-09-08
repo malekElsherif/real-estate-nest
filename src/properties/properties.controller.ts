@@ -21,11 +21,12 @@ import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { VerifiedAgentGuard } from 'src/auth/guards/verified-agent.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('properties')
 export class PropertiesController {
-  constructor(private readonly propertiesService: PropertiesService) { }
+  constructor(private readonly propertiesService: PropertiesService) {}
   @UseGuards(VerifiedAgentGuard)
   @Roles('AGENT')
   @Post()
@@ -38,13 +39,6 @@ export class PropertiesController {
       req.user,
     );
   }
-  @Get()
-  getAllProperties(
-    @Query()
-    page: PaginationDto,
-  ) {
-    return this.propertiesService.findAllProperties(page);
-  }
   @Get('filter')
   filterandsearchProperties(
     @Query() filter: FilterPropertyDto,
@@ -52,6 +46,15 @@ export class PropertiesController {
   ) {
     return this.propertiesService.filterandsearchProperties(filter, page);
   }
+  @Get()
+  getAllProperties(
+    @Query()
+    page: PaginationDto,
+
+  ) {
+    return this.propertiesService.findAllProperties(page);
+  }
+
 
   @Roles('ADMIN')
   @Get('allpendingproperties')
@@ -95,4 +98,6 @@ export class PropertiesController {
   makeavailableProperty(@Param('id') id: number) {
     return this.propertiesService.makePropertyAvailableUnavailable(id);
   }
+
+
 }
