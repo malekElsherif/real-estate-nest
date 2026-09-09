@@ -50,11 +50,9 @@ export class PropertiesController {
   getAllProperties(
     @Query()
     page: PaginationDto,
-
   ) {
     return this.propertiesService.findAllProperties(page);
   }
-
 
   @Roles('ADMIN')
   @Get('allpendingproperties')
@@ -75,7 +73,7 @@ export class PropertiesController {
     return this.propertiesService.updateProperty(id, updatePropertyDto);
   }
   @UseGuards(VerifiedAgentGuard)
-  @Roles('AGENT')
+  @Roles('AGENT', 'ADMIN')
   @Delete(':id')
   deleteProperty(@Param('id') id: number) {
     return this.propertiesService.deleteProperty(id);
@@ -98,6 +96,4 @@ export class PropertiesController {
   makeavailableProperty(@Param('id') id: number) {
     return this.propertiesService.makePropertyAvailableUnavailable(id);
   }
-
-
 }
