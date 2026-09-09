@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -12,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
-
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { FilterPropertyDto } from './dto/filter-property.dto';
@@ -21,16 +21,16 @@ import type { Request } from 'express';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { VerifiedAgentGuard } from 'src/auth/guards/verified-agent.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('properties')
 export class PropertiesController {
   constructor(private readonly propertiesService: PropertiesService) {}
+
   @UseGuards(VerifiedAgentGuard)
   @Roles('AGENT')
   @Post()
-  async CraeteProperty(
+  async createProperty(
     @Body() createPropertyDto: CreatePropertyDto,
     @Req() req: Request & { user: any },
   ) {
@@ -39,61 +39,63 @@ export class PropertiesController {
       req.user,
     );
   }
+
   @Get('filter')
-  filterandsearchProperties(
+  filterAndSearchProperties(
     @Query() filter: FilterPropertyDto,
     @Query() page: PaginationDto,
   ) {
     return this.propertiesService.filterandsearchProperties(filter, page);
   }
+
   @Get()
-  getAllProperties(
-    @Query()
-    page: PaginationDto,
-  ) {
+  getAllProperties(@Query() page: PaginationDto) {
     return this.propertiesService.findAllProperties(page);
   }
 
   @Roles('ADMIN')
   @Get('allpendingproperties')
-  getAllpendingproperties() {
+  getAllPendingProperties() {
     return this.propertiesService.getAllpendingproperties();
   }
+
   @Get(':id')
-  getPropertyById(@Param('id') id: number) {
+  getPropertyById(@Param('id', ParseIntPipe) id: number) {
     return this.propertiesService.findPropertyById(id);
   }
+
   @UseGuards(VerifiedAgentGuard)
   @Roles('AGENT')
   @Patch(':id')
   updateProperty(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updatePropertyDto: UpdatePropertyDto,
   ) {
     return this.propertiesService.updateProperty(id, updatePropertyDto);
   }
-  @UseGuards(VerifiedAgentGuard)
+
   @Roles('AGENT', 'ADMIN')
   @Delete(':id')
-  deleteProperty(@Param('id') id: number) {
+  deleteProperty(@Param('id', ParseIntPipe) id: number) {
     return this.propertiesService.deleteProperty(id);
   }
 
   @Get('user/:userId')
   findPropertiesByUserId(
-    @Param('userId') userId: number,
+    @Param('userId', ParseIntPipe) userId: number,
     @Query() page: PaginationDto,
   ) {
     return this.propertiesService.findPropertiesByUserId(userId, page);
   }
 
   @Get('similar/:propid')
-  findsymilarproperty(@Param('propid') propid: number) {
+  findSimilarProperty(@Param('propid', ParseIntPipe) propid: number) {
     return this.propertiesService.findsymilarproperty(propid);
   }
+
   @Roles('ADMIN')
   @Patch(':id/makePropertyAvailableUnavailable')
-  makeavailableProperty(@Param('id') id: number) {
+  makeAvailableProperty(@Param('id', ParseIntPipe) id: number) {
     return this.propertiesService.makePropertyAvailableUnavailable(id);
   }
 }
