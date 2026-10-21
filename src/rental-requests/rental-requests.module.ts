@@ -3,7 +3,7 @@ import { RentalRequestsService } from './rental-requests.service';
 import { RentalRequestsController } from './rental-requests.controller';
 import { RentalRequest } from './entities/rental-request.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Property } from 'src/properties/entities/property.entity';
+import { Property } from '../properties/entities/property.entity';
 
 @Module({
   imports: [

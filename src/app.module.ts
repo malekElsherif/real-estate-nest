@@ -24,30 +24,25 @@ import { MessagesModule } from './messages/messages.module';
       isGlobal: true,
     }),
 
-    /* TypeOrmModule.forRootAsync({
+   TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-
       inject: [ConfigService],
-
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-
         host: configService.get<string>('DB_HOST'),
         port: configService.get<number>('DB_PORT'),
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-
         autoLoadEntities: true,
-
         synchronize: true,
       }),
-      }),*/
-    TypeOrmModule.forRootAsync({
+    }),
+
+    // إذا أردت استخدام الاتصال عبر DB_URL مستقبلاً، يمكنك تفعيل هذا الجزء وإلغاء الأول:
+  /*  TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-
       inject: [ConfigService],
-
       useFactory: (configService: ConfigService) => {
         console.log('DB_URL =', configService.get<string>('DB_URL'));
 
@@ -59,7 +54,7 @@ import { MessagesModule } from './messages/messages.module';
         };
       },
     }),
-
+    */
     UsersModule,
     PropertiesModule,
     PropertyImagesModule,
@@ -76,7 +71,6 @@ import { MessagesModule } from './messages/messages.module';
   ],
 
   controllers: [AppController],
-
   providers: [AppService, ChatGateway],
 })
 export class AppModule {}

@@ -7,7 +7,7 @@ import {
 import { RentalRequest } from './entities/rental-request.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Property } from 'src/properties/entities/property.entity';
+import { Property } from '../properties/entities/property.entity';
 
 @Injectable()
 export class RentalRequestsService {

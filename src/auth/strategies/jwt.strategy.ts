@@ -7,7 +7,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ReadonlyVisitor } from '@nestjs/swagger/plugin';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { In, Repository } from 'typeorm';
 
 @Injectable()

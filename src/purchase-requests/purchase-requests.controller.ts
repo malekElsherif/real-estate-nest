@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 
 import { PurchaseRequestsService } from './purchase-requests.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { VerifiedAgentGuard } from 'src/auth/guards/verified-agent.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { VerifiedAgentGuard } from '../auth/guards/verified-agent.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('purchase-requests')

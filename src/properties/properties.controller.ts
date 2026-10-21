@@ -14,13 +14,13 @@ import {
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FilterPropertyDto } from './dto/filter-property.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import type { Request } from 'express';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { VerifiedAgentGuard } from 'src/auth/guards/verified-agent.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { VerifiedAgentGuard } from '../auth/guards/verified-agent.guard';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('properties')

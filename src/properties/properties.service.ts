@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Property } from './entities/property.entity';
 import { Repository } from 'typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdatePropertyDto } from './dto/update-property.dto';

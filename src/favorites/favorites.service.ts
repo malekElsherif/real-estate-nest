@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Favorite } from './entities/favorite.entity';
 import { Repository } from 'typeorm';
-import { Property } from 'src/properties/entities/property.entity';
+import { Property } from '../properties/entities/property.entity';
 
 @Injectable()
 export class FavoritesService {

@@ -6,11 +6,11 @@ import {
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { User } from '../users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { Property } from 'src/properties/entities/property.entity';
-import { PurchaseRequest } from 'src/purchase-requests/entities/purchase-request.entity';
-import { RentalRequest } from 'src/rental-requests/entities/rental-request.entity';
+import { Property } from '../properties/entities/property.entity';
+import { PurchaseRequest } from '../purchase-requests/entities/purchase-request.entity';
+import { RentalRequest } from '../rental-requests/entities/rental-request.entity';
 
 @Injectable()
 export class AdminService {

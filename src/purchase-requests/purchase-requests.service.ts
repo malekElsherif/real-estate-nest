@@ -8,7 +8,7 @@ import { UpdatePurchaseRequestDto } from './dto/update-purchase-request.dto';
 import { In, Repository } from 'typeorm';
 import { PurchaseRequest } from './entities/purchase-request.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Property } from 'src/properties/entities/property.entity';
+import { Property } from '../properties/entities/property.entity';
 
 @Injectable()
 export class PurchaseRequestsService {

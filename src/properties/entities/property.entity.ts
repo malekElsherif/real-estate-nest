@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 import { User } from '../../users/entities/user.entity';
-import { PropertyImage } from 'src/property-images/entities/property-image.entity';
+import { PropertyImage } from '../../property-images/entities/property-image.entity';
 
 @Entity('properties')
 export class Property {
