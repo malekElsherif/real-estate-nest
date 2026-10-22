@@ -62,10 +62,11 @@ export class PropertiesService {
     page: PaginationDto,
   ) {
     const { city, type, status, minPrice, maxPrice } = filter;
-
     const { page: pageNo, limit } = page;
 
-    const query = this.propertyRepository.createQueryBuilder('property');
+    const query = this.propertyRepository
+      .createQueryBuilder('property')
+      .leftJoinAndSelect('property.owner', 'owner');
 
     if (city) {
       query.andWhere('property.city = :city', { city });
