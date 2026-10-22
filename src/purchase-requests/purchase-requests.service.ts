@@ -32,7 +32,7 @@ export class PurchaseRequestsService {
     }
     const existingRequest = await this.purchaseRequestRepository.findOne({
       where: {
-        user: user.userId,
+        user: { id: user.userId },
         property: { id: propertyId },
         status: 'PENDING',
       },
@@ -48,7 +48,7 @@ export class PurchaseRequestsService {
     }
 
     const purchaseRequest = this.purchaseRequestRepository.create({
-      user: user.userId,
+      user: { id: user.userId },
       property: { id: propertyId },
     });
 
@@ -58,7 +58,7 @@ export class PurchaseRequestsService {
   async getmypurchaseRequests(user: any) {
     return this.purchaseRequestRepository.find({
       where: {
-        user: user.userId,
+        user: { id: user.userId },
       },
       relations: {
         property: true,
@@ -70,7 +70,7 @@ export class PurchaseRequestsService {
     const purchaseRequest = await this.purchaseRequestRepository.findOne({
       where: {
         id: id,
-        user: user.userId,
+        user: { id: user.userId },
         status: 'PENDING',
       },
     });
@@ -105,7 +105,7 @@ export class PurchaseRequestsService {
     return this.purchaseRequestRepository.find({
       where: {
         property: {
-          owner: user.userId,
+          owner: { id: user.userId },
         },
       },
       relations: {
@@ -120,7 +120,7 @@ export class PurchaseRequestsService {
       where: {
         id: id,
         property: {
-          owner: user.userId,
+          owner: { id: user.userId },
         },
       },
       relations: {
@@ -160,7 +160,7 @@ export class PurchaseRequestsService {
       where: {
         id: id,
         property: {
-          owner: user.userId,
+          owner: { id: user.userId },
         },
       },
       relations: {
@@ -185,7 +185,7 @@ export class PurchaseRequestsService {
       where: {
         status: 'PENDING',
         property: {
-          owner: user.userId,
+          owner: { id: user.userId },
         },
       },
       relations: {
@@ -200,7 +200,7 @@ export class PurchaseRequestsService {
       where: {
         status: 'APPROVED',
         property: {
-          owner: user.userId,
+          owner: { id: user.userId },
         },
       },
       relations: {
@@ -215,7 +215,7 @@ export class PurchaseRequestsService {
       where: {
         status: 'REJECTED',
         property: {
-          owner: user.userId,
+          owner: { id: user.userId },
         },
       },
       relations: {

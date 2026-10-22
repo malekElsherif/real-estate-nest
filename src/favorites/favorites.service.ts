@@ -24,7 +24,7 @@ export class FavoritesService {
       throw new NotFoundException('Property not found');
     }
     const favorite = this.favoriteRepository.create({
-      user: request.userId,
+      user: { id: request.userId },
       property: property,
     });
 
@@ -42,7 +42,7 @@ export class FavoritesService {
   async getmyFavorites(request: any) {
     return this.favoriteRepository.find({
       where: {
-        user: request.userId,
+        user: { id: request.userId },
       },
 
       relations: {
@@ -59,14 +59,15 @@ export class FavoritesService {
     });
     const favorite = await this.favoriteRepository.findOne({
       where: {
-        user: request.user.userId,
+        user: { id: request.user.userId },
+        property: { id: propertyId },
       },
     });
     if (!favorite) {
       throw new NotFoundException('Favorite not found');
     }
 
-    this.favoriteRepository.remove(favorite);
+    await this.favoriteRepository.remove(favorite);
     return {
       message: 'Favorite removed successfully',
     };
