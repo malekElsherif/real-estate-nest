@@ -19,6 +19,7 @@ async function bootstrap() {
     origin: [
       'https://real-estate-react-fawn-six.vercel.app',
       'http://localhost:5173',
+      'http://localhost:5679',
     ],
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -29,7 +30,7 @@ async function bootstrap() {
     prefix: '/uploads/',
   });
 
-  await app.listen(process.env.PORT ?? 3001);
+  await app.listen(process.env.PORT ?? 3001, '0.0.0.0');
 }
 
 bootstrap();

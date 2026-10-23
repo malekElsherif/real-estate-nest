@@ -17,6 +17,7 @@ import { join } from 'path';
 import { AdminModule } from './admin/admin.module';
 import { ChatGateway } from './chat/chat.gateway';
 import { MessagesModule } from './messages/messages.module';
+import { ViewedPropsModule } from './viewed-props/viewed-props.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { MessagesModule } from './messages/messages.module';
     }),
     AdminModule,
     MessagesModule,
+    ViewedPropsModule,
   ],
 
   controllers: [AppController],

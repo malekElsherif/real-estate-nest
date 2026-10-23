@@ -8,6 +8,7 @@ import {
 
 import { User } from '../../users/entities/user.entity';
 import { PropertyImage } from '../../property-images/entities/property-image.entity';
+import { ViewedProp } from 'src/viewed-props/entities/viewed-prop.entity';
 
 @Entity('properties')
 export class Property {
@@ -63,4 +64,9 @@ export class Property {
     cascade: true,
   })
   images!: PropertyImage[];
+
+  @OneToMany(() => ViewedProp, (viewedProp) => viewedProp.property, {
+    cascade: true,
+  })
+  views!: ViewedProp[];
 }
