@@ -28,7 +28,7 @@ type AuthenticatedSocket = Socket & {
       const allowedOrigins = [
         'http://localhost:5173',
         'http://localhost:3001',
-        'https://real-estate-react-production.up.railway.app',
+        'https://real-estate-react-fawn-six.vercel.app',
         process.env.CLIENT_URL, // خيار ديناميكي من متغيرات البيئة
       ].filter(Boolean);
 
